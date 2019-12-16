@@ -21,30 +21,35 @@ const int NUM_SAMPLES = (WAVFILE_SAMPLES_PER_SECOND*WAVFILE_CHANNELS*2)*WAVFILE_
 
 int main()
 {
-	short waveform[NUM_SAMPLES];
-	double frequency = 700.0;
-	int volume = 32000;
-	int length = NUM_SAMPLES;
+    short* waveform = NULL;
+    double frequency = 700.0;
+    int volume = 32000;
+    int length = NUM_SAMPLES;
+    int i;
+    FILE * f = NULL;
 
-	int i;
-	for(i=0;i<length/WAVFILE_CHANNELS;i++) {
-		double t = (double) i / WAVFILE_SAMPLES_PER_SECOND;
+    waveform = (short *)malloc(sizeof(short) * NUM_SAMPLES);
+
+    for(i=0;i<length/WAVFILE_CHANNELS;i++) {
+        double t = (double) i / WAVFILE_SAMPLES_PER_SECOND;
         if (WAVFILE_CHANNELS == 2) {
             waveform[i*2] = volume*sin(frequency*t*2*M_PI);
             waveform[i*2 + 1] = volume*sin(frequency*t*2*M_PI);
         } else {
             waveform[i] = volume*sin(frequency*t*2*M_PI);
         }
-	}
+    }
 
-	FILE * f = wavfile_open("sound.wav");
-	if(!f) {
-		printf("couldn't open sound.wav for writing: %s",strerror(errno));
-		return 1;
-	}
+    f = wavfile_open("sound.wav");
+    if(!f) {
+        printf("couldn't open sound.wav for writing: %s",strerror(errno));
+        return 1;
+    }
 
-	wavfile_write(f,waveform,length);
-	wavfile_close(f);
+    wavfile_write(f,waveform,length);
+    wavfile_close(f);
 
-	return 0;
+    free(waveform);
+
+    return 0;
 }
